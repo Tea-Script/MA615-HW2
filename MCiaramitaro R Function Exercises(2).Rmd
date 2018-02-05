@@ -1,0 +1,381 @@
+---
+title: "MA615 Assignment 2 Part 2"
+author: "Matthew Ciaramitaro"
+date: "January 26, 2018"
+header-includes:
+  - \DeclareUnicodeCharacter{2212}{ }
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1.
+
+(a) Write functions \texttt{tmpFn1} and \texttt{tmpFn2} such that if \texttt{xVec} is the vector $(x_1, x_2, ... ,x_n)$, then \texttt{tmpFn1(xVec)} returns vector $(x_1, x_2^2, ..., x_n^n)$ and \texttt{tmpFn2(xVec)} returns the vector $(x_1, \frac{x_2^2}{2}, ..., \frac{x_n^n}{n})$.
+
+******
+
+Here is \texttt{tmpFn1}
+```{r}
+
+tmpFn1 <- function(xVec){
+  return(xVec^(1:length(xVec)))
+}
+
+## simple example
+a <- c(2, 5, 3, 8, 2, 4)
+
+b <- tmpFn1(a)
+b
+
+```
+
+and now \texttt{tmpFn2}
+
+```{r}
+tmpFn2 <- function(xVec2){
+  
+  n = length(xVec2)
+  
+  return(xVec2^(1:n)/(1:n))
+}
+
+
+
+c <- tmpFn2(a)
+c
+
+
+```
+
+######  
+  
+  
+  
+(b) Now write a fuction \texttt{tmpFn3} which takes 2 arguments $x$ and $n$ where $x$ is a single number and $n$ is a strictly positive integer.  The function should return the value of   
+$$1 + \frac{x}{1} + \frac{x^2}{2} + \frac{x^3}{3} + ... + \frac{x^n}{n}$$
+
+```{r}
+tmpFn3 <- function(x,n){
+  #x is number, n is strictly positive integer
+  rng = 1:n
+  return(1 + sum(x^rng / rng))
+  
+}
+
+```
+
+\newpage
+### 2. Write a function \texttt{tmpFn(xVec)} such that if \texttt{xVec} is the vector $x = (x_1, ...,x_n)$ then \texttt{tmpFn(xVec)} returns the vector of moving averages:
+
+$$\frac{x_1 + x_2 + x_3}{3}, \frac{x_2 + x_3 + x_4}{3}, ...,\frac{x_{n-2} + x_{n-1} + x_n}{3}$$
+```{r}
+tmpFn <- function(xVec){
+  n <- length(xVec)
+  rng1 <- 1:(n-2)
+  rng2 <- rng1 + 1
+  rng3 <- rng2 + 1
+  return((xVec[rng1] + xVec[rng2] + xVec[rng3] )/3)
+}
+c <- tmpFn(c(1:5,6:1))
+c
+```
+Try out your function.  \texttt{tmpFn}(c(1:5,6:1))
+
+### 3. Consider the continuous function
+
+$$f(x) = \left\{\begin{matrix}
+x^2 + 2x + 3 & if  & x < 0 \\ 
+x + 3 & if & 0 \leq x < 2 \\ 
+x^2 + 4x - 7 & if & 2 \leq  x 
+\end{matrix}\right.$$
+
+Write a function \texttt{tmpFn} which takes a single argument \texttt{xVec}.  the function should return the vector the values of the function $f(x)$ evaluated at the values in \texttt{xVec}.  
+Hence plot the function $f(x)$ for $-3 < x <3$.
+
+```{r}
+tmpFn <- function(x){
+  return(
+    (x < 0) * (x^2 + 2*x + 3) +
+    (0 <= x && x < 2) * (x + 3)    +
+    (x >= 2) * (x^2 + 4*x -7)
+  )
+}
+rng = (-3):3
+plot(rng, tmpFn(rng), type="b", xlab="x", ylab="f(x)")
+```
+
+### 4. Write a function which takes a single argument which is a matrix.  The function should return a matrix which is the same as the function argument but every odd number is doubled.  
+Hence the result of using the function on the matrix   
+
+$$\begin{bmatrix}
+1 & 1 & 3\\ 
+5 & 2 & 6\\ 
+-2 & -1 & -3
+\end{bmatrix}$$
+
+should be:
+
+$$\begin{bmatrix}
+2 & 2 & 6\\ 
+10 & 2 & 6\\ 
+-2 & -2 & -6
+\end{bmatrix}$$
+```{r}
+
+
+#let's start with indexing.
+odddub <-  function(mat){
+  #Note this function has the problem of updating the original matrix in place
+  mat <- mat
+  odds <- which(mat %% 2 == 1, arr.ind=T)
+  mat[odds] <-  2 * mat[odds]
+  return(mat)
+}
+
+test <- matrix(c(1,1,3,5,2,6,-2,-1,-3), nrow=3, byrow=T)
+odddub(test) #testing R referencing
+test
+test <-  odddub(test)
+test
+
+```
+
+### 5. Write a function which takes 2 arguements $n$ and $k$ which are positive integers.  It should return the $\mathit{n} x \mathit{n}$ matrix:
+
+
+$$\begin{bmatrix}
+k & 1 & 0 & 0 & \cdots  & 0 & 0\\ 
+1 & k & 1 & 0 & \cdots  & 0 & 0\\
+0 & 1 & k & 1 & \cdots  & 0 & 0\\
+0 & 0 & 1 & k & \cdots  & 0 & 0\\
+\cdot & \cdot & \cdot & \cdot & \cdot & \cdot & \cdot\\ 
+0 & 0 & 0 & 0 & \cdots  & k & 1\\
+0 & 0 & 0 & 0 & \cdots  & 1 & k
+\end{bmatrix}$$
+
+```{r}
+
+fn <- function(n,k){
+    mat <- matrix(rep(0,n*n), nrow = n, byrow = TRUE)  
+    mat[abs(row(mat)-col(mat))==1] <- 1 #produce 1s in columns next to diagonal
+    diag(mat) <- k #line diagonal with ks
+    return(mat)
+}
+#testing
+fn(6,2)
+
+```
+
+
+
+### 6. Suppose an angle $\alpha$ is given as a positive real number of degrees.  
+If $0 \leq \alpha < 90$ then it is quadrant 1.  If $90 \leq \alpha < 180$ then it is quadrant 2.  
+if $180 \leq \alpha < 270$ then it is quadrant3.  if $270 \leq \alpha < 360$ then it is quadrant 4.  
+if $360 \leq \alpha < 450$ then it is quadrant 1.  
+And so on ...   
+
+Write a function \texttt{quadrant(alpha)} which returns the quadrant of the angle $\alpha$.
+
+```{r}
+quadrant <- function(alpha){
+  ed <-  trunc(alpha / 90)
+  return(ed + 1)
+}
+#testing
+quadrant(180) #should be 3
+quadrant(179) #should be 2
+quadrant(89) #should be 1
+quadrant(0) # should be 1
+
+
+
+```
+
+### 7.
+
+(a) Zeller's congruence is the formula:
+
+$$ f = ([2.6m - 0.2] + k + y + [y/4] + [c/4] - 2c)mod 7 $$
+where $[x]$ denotes the integer part of $x$; for example $[7.5] = 7$.  
+
+Zeller's congruence returns the day of the week $f$ given:
+
+$k$ = the day of the month  
+$y$ = the year in the century  
+$c$ = the first 2 digits of the year (the century number)  
+$m$ = the month number (where January is month 11 of the preceding year, February is month 12 of the preceding year, March is month 1, etc.)   
+For example, the date 21/07/1`963 has $m = 5, k = 21, c = 19, y = 63$;  
+the date 21/2/63 has $m=12, k=21, c=19, and y=62$.  
+Write a function \texttt{weekday(day,month,year)} which returns the day of the week when given the numerical inputs of the day, month and year.  
+Note that the value of 1 for $f$ denotes Sunday, 2 denotes Monday, etc.
+
+```{r}
+#Assume the months, day and year are given in normal date format (dd, mm, yyyy), such as (3, 2, 2018) for February 3rd 2018
+weekday <- function(day,month,year){
+  weekdays = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+  k <-  day
+  m <- (month + 9) %% 12 + 1
+  c <- trunc(year / 100)
+  y <- year - 100*c
+  index <- ((abs(2.6*m - .2) + k + y + trunc(y/4) + trunc(c/4) -2*c - 1)  %% 7) + 1 #indexing was failing because saturday is at index 7 not 0, added 1s
+  return(weekdays[index])
+  
+  
+}
+#testing
+weekday(5,2, 2018) #should be Monday
+weekday(6,2, 2018) #should be Tuesday
+weekday(7,2, 2018) #should be Wednesday
+weekday(8,2, 2018) #should be Thursday
+weekday(9,2, 2018) #should be Friday
+weekday(10,2, 2018) #should be Saturday
+weekday(11,2, 2018) #should be Sunday
+```
+(b) Does your function work if the input parameters \text{day, month, and year} are vectors with the same length and valid entries?
+```{r}
+#testing with vectors
+days <-  5:11
+months <-  rep(2, times=length(days))
+years <-  rep(2018, times=length(days))
+#should list all days of the week starting from Monday
+weekday(days,months,years)
+#It does work
+
+```
+
+
+
+
+### 8.
+(a)
+Suppose $x_0 = 1$ and $x_1 = 2$ and
+$$x_j = x_{j-1} + 2 / x_{j-1}$$ for $j =  1,2,...$
+
+Write a function testLoop(n) that returns the first n - 1 elements of the sequence
+
+```{r}
+testLoop <- function(n){ #by the name of this function I assume I should use a loop
+  xs = rep(1, times=n-1)
+  xs[2] = 2
+  for(i in 3:length(xs)){
+    xs[i] <- xs[i-1] + 2/xs[i-1]
+  }
+  return(xs)
+}
+#test 
+testLoop(10)
+
+
+```
+
+(b)
+define testLoop2 that calculates $$\sum_{j=1}^{n}e^j$$ for a vector y
+
+```{r}
+testLoop2 <- function(yVec){ #much simpler without a loop
+  tmp <- exp(yVec)
+  return(sum(tmp))
+}
+#Test
+
+testLoop2(c(1,0,1)) #should be about 6.44
+
+
+```
+### 9.
+Solution of the difference equation
+$$x_n = rx_{n−1}(1- x_{n-1}) \text{with starting value } x_1$$
+(a)
+```{r}
+quadmap <- function(start, rho, niter){
+  xVec <- rep(start,times=niter)
+  for(i in 2:niter){
+    xVec[i] = rho * xVec[i-1] * (1- xVec[i-1])
+  }
+  return(xVec)
+}
+#testing
+quadmap(rho=2, start=0.1, niter=50) #should be about .5
+tmp <- quadmap(start=0.95, rho=2.99, niter=500)
+plot(tmp, type="l")
+plot(tmp[300:500], type="l")
+
+
+```
+There is a big difference in spread between these two plots
+
+(b)
+```{r}
+quadmap2 <- function(start, rho, epsilon=.02){ 
+  #finds the number of iterations required to get the difference between consecutive values less than epsilon
+  iter <- 1
+  x1 <- rho * start * (1- start)
+  xVec = c(start, x1)
+  while(abs(xVec[2] - xVec[1]) >= epsilon ){ #when it is less than epsilon the loop will stop
+    xVec[1] <- xVec[2]
+    xVec[2] = rho * xVec[1] * (1- xVec[1])
+    iter <- iter + 1
+  }
+  return(iter)
+}
+#testing
+quadmap2(start=.95, rho=2.99) #should be 84
+
+
+```
+
+###10.
+(a)
+Given a vector $(x_1, ... , x_n)$ the sample autocorrelation of lag k is defined to be
+$$r_k = \frac{\sum_{i=k+1}^n(x_i - x_s)(x_{i-k} - x_s)}{\sum_{i=k+1}^n(x_i - x_s)^2}$$ Where $x_s$ is the sample mean
+write a function to solve for r1 and r2
+
+
+```{r}
+funFn <- function(k,v,mu){
+         rng <-  (k+1):length(v)
+         rng2 <- rng - k
+         bottom <- sum((v[rng] - mu)^2)
+         top <- sum((v[rng] - mu) * (v[rng2] - mu) )
+         return(top/bottom)
+}
+
+tmpFn <- function(xVec){ #This function solves for r_1 and r_2
+  mu <-  mean(xVec)
+  rs <-  c(1,2)
+  sol <- sapply(rs, funFn, v=xVec, mu=mu)
+  return(sol)
+}
+#testing function over given interval
+testseq <- seq(from=2, to= 56, by=3)
+tmpFn(testseq)
+```
+since I started out with nearly the generalised code, It is simple to allow for my result to list $r_0, ..., r_k$ 
+(b)
+
+```{r}
+funFn <- function(k,v,mu){
+         rng <-  (k+1):length(v)
+         rng2 <- rng - k
+         bottom <- sum((v[rng] - mu)^2)
+         top <- sum((v[rng] - mu) * (v[rng2] - mu) )
+         return(top/bottom)
+}
+
+tmpFn <- function(xVec, k){
+  #Returns vector of all r up to k, where k is between 1 and n-1, n=length(xVec)
+  mu <-  mean(xVec)
+  rs <-  1:k
+  sol <- sapply(rs, funFn, v=xVec, mu=mu)
+  return(c(1,sol)) #add 1 to solution for r0 before releasing
+}
+#testing function over given interval
+testseq <- seq(from=2, to= 56, by=3)
+tmpFn(testseq, 10)
+```
+
+
+
+

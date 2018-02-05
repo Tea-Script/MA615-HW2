@@ -1,0 +1,313 @@
+---
+title: "MA615 Assignment 2 Part 1"
+author: "Matthew Ciaramitaro"
+date: "January 25, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Matrix problems
+
+### 1. Suppose
+
+$$ A = \begin{bmatrix}
+1 & 1 & 3\\ 
+5 & 2 & 6\\ 
+-2 & -1 & -3
+\end{bmatrix}$$
+(a) Check that $A^3 = \mathbf{0}$  
+```{r}
+A <- matrix(c(1,1,3,5,2,6,-2,-1,-3), nrow = 3, byrow = T)
+O <- matrix(rep(0,9), nrow=3, byrow=T)
+sum(A %*% A %*% A == O) / length(A) == 1 #Check to see if A to the third is identical to the zero matrix
+```
+(b) Replace the third column of A by the 
+sum of the second and third columns  
+
+******   
+First, produce A
+
+```{r}
+A <- matrix(c(1,1,3,5,2,6,-2,-1,-3), nrow = 3, byrow = TRUE)
+A
+```
+
+Then, add the columns 2 and 3 and assign the sum to the third column
+
+
+```{r}
+A[,3] <- A[,2] + A[,3]
+
+A
+```
+
+
+******
+
+### 2. Create the following matrix B with 15 rows
+
+$$B = \begin{bmatrix}
+10 & -10 & 10\\
+10 &  -10& 10\\
+ \cdots & \cdots  & \cdots \\
+10 & -10 & 10
+\end{bmatrix} $$
+
+Calculate the 3x3 matrix $B^TB$.  You can make this calculation with the function crossprod().  See the documentaion. 
+
+```{r}
+#first create B
+B <- matrix(rep(c(10,-10, 10), length.out = 15), nrow=5, ncol=3, byrow = T)
+B
+
+```
+```{r}
+#now calculate B.T@B
+out <- crossprod(B,B)
+out
+```
+\newpage  
+
+
+### 3. Create a 6 x 6 matrix matE  with every element equal to 0.  check what the functions row() and col() return when applied to matE.
+Now, create the 6 x 6 matix:
+
+$$\begin{bmatrix}
+0 &1  & 0 & 0 & 0 & 0\\
+1 &0 & 1 &0  & 0 &0 \\
+0 & 1 & 0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0 & 1 & 0\\
+0& 0 & 0 & 1 & 0 & 1\\
+0& 0 & 0 & 0 & 1 & 0
+\end{bmatrix} $$  
+
+******
+Here is matE, a 6x6 matrix of 0's followed by row(matE) and col(matE)
+```{r}
+matE <- matrix(rep(0,36), nrow = 6, byrow = TRUE)  
+
+# Note what the functions row() and col() do
+row(matE)
+col(matE)
+
+```
+
+
+```{r}
+# With a little experimentation you would see
+# that the specified pattern is in the |1|'s
+row(matE)-col(matE)
+```
+\newpage
+```{r}
+# so you use the locations of the 1's to modify matE 
+matE[abs(row(matE)-col(matE))==1] <- 1
+matE
+```
+
+******
+
+
+### 4.  Look at the help for the function outer().  Now, create the following patterned matrix:
+
+$$\begin{bmatrix}
+0 & 1 & 2 & 3 & 4\\
+1 & 2 & 3 & 4 & 5\\
+2 & 3 & 4 & 5 & 6\\
+3 & 4 & 5 & 6 & 7\\
+4 & 5 & 6 & 7 & 8
+\end{bmatrix} $$
+
+```{r}
+
+a <- 0:4
+A <- outer(a,a,"+")
+A
+```
+
+Use outer() a little more to make sure you get it.
+
+```{r}
+B <- outer(a,a, "*")
+B
+
+# and
+b <- 5:10
+C <- outer(a,b,"+")
+C
+
+# and finally  --  make sure you check the values.
+D <- outer(b,a, "%%")
+D
+```
+
+
+### 5.  Create the following patterned matrices.  Your solutions should be generalizable to enable creating larger matrices with the same structure.
+
+(a)
+
+$$\begin{bmatrix}
+0 & 1 & 2 & 3 & 4\\
+1 &2 & 3 & 4 & 0\\
+2 & 3 & 4 & 0 & 1\\
+3 & 4 & 0 & 1 & 2\\
+4 & 0 & 1 & 2 & 3
+\end{bmatrix}  $$
+```{r}
+a <- 0:4
+A <- outer(a,a, "+")
+A <- A %% length(a) #take sum modularly to generate the effect of increasing by 1 going down columns
+A
+```
+(b)
+
+$$ \begin{bmatrix}
+0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9\\
+1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 0\\
+\vdots  & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots\\
+8 & 9 & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7\\
+9 & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8
+\end{bmatrix} $$
+```{r}
+#this is the same thing essentially with a different range
+a  <-  0:9
+A <- outer(a,a, "+")
+A <- A %% length(a)
+A
+```
+
+(c)
+
+$$\begin{bmatrix}
+0 & 8 & 7 & 6 & 5 & 4 &3  & 2 & 1\\
+1 & 0 & 8 & 7 & 6 & 5 & 4 & 3 & 2\\
+2 & 1 & 0 & 8 & 7 & 6 & 5 & 4 & 3\\
+3 & 2 & 1 & 0 & 8 & 7 & 6 & 5 & 4\\
+4 & 3 & 2 & 1 & 0 & 8 & 7 & 6 & 5\\
+5 & 4 & 3 & 2 & 1 & 0 & 8 & 7 & 6\\
+6 & 5 & 4 & 3 & 2 & 1 & 0 & 8 & 7\\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 & 8\\
+8 & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0
+\end{bmatrix} $$
+
+
+```{r}
+#this is the same thing essentially with a different range
+a  <-  0:8
+A <- outer(a,a, "+")
+A <- A %% length(a)
+#Now the matrix here is essentially the correct matrix, but columns 2 to 9 are in the wrong order
+A[,2:9] <- A[,9:2]
+A
+```
+
+
+
+
+### 6.  Solve the following system of linear equations by setting up and solving the matrix equation Ax = y.
+
+$x_1 + 2x_2 + 3x_3 + 4x_4 + 5x_5 =  7$  
+$2x_1 +  x_2 + 2x_3 + 3x_4 + 4x_5 = -1$  
+$3x_1 + 2x_2 +  x_3 + 2x_4 + 3x_5 = -3$  
+$4x_1 + 3x_2 + 2x_3 +  x_4 + 2x_5 =  5$  
+$5x_1 + 4x_2 + 3x_3 + 2x_4 +  x_5 = 17$  
+
+```{r}
+#first create the matrix A
+A <-  matrix(rep(1:5, length.out=25), nrow=5, byrow = T)
+A <-  abs(row(A) - col(A)) + 1
+A
+#x is the matrix we want to solve for, lets create y
+y <- matrix(c(7,-1,-3,5,17), nrow=5, byrow = T)
+y
+#now solve
+x <- solve(A,y)
+x #this is the answer
+#now check answer 
+abs(A %*% x - y) < 1e-6 
+```
+ 
+
+### 7. Create a 6 x 10 matrix of random integers chosen from 1,2,...,10 by executing the following two lines of code:
+
+```{r}
+set.seed(75)  
+aMat <- matrix(sample(10, size=60, replace=TRUE), nr=6)  
+```
+
+Use the matrix you have created to answer these questions:  
+
+(a) Find the number of entries in each row which are greater than 4.
+```{r}
+sum(aMat > 4) #we expect this to be around 6/10 * 60 = 36 entries
+```
+
+
+(b) Which rows contain exactly two occurrences of the number seven?
+```{r}
+#answer is row 5
+hist(which((aMat == 7), arr.ind = T)[,1]) #histogram illustrating number of 7s in each row
+which(rowSums((aMat == 7)) == 2 ) #sums the rows of the logical vector of locations aMat == 7, gives rows which contain exactly 2 7s.
+
+```
+(c) Find those pairs of columns whose total (over both columns) is greater than 75.  The answer should be a matrix with two columns; so, for example, the row (1,2) in the output matrix means that the sum of columns 1 and 2 in the original matrix is greater than 75.  Repeating a column is permitted; so, for example, the final output matrix could contain the rows (1,2), (2,1), and (2,2).  
+
+```{r}
+allcolsums <- outer(colSums(aMat), colSums(aMat), "+")
+allcolsums
+sol <- which(allcolsums > 75, arr.ind = T)
+sol
+```
+
+
+What if repetitions are not permitted? Then only (1,2) from (1,2),(2,1) and (2,2) would be permitted.
+```{r}
+allcolsums <- outer(colSums(aMat), colSums(aMat), "+")
+allcolsums
+sol <- allcolsums > 75
+sol[lower.tri(sol)] <- F #remove below diagonal
+diag(sol) <- F #remove the diagonal
+sol <- which(sol, arr.ind = T)
+sol
+
+```
+
+### 8. Calculate
+
+(a) $\sum\limits_{i=1}^{20} \sum\limits_{j=1}^5 \frac{i^4}{(3+j)}$
+
+******
+```{r}
+sum((1:20)^4) * sum(1/(3+(1:5)))
+
+# or
+
+sum(outer((1:20)^4, (3+(1:5)), "/"))
+
+```
+******
+
+(b) $\sum\limits_{i=1}^{20} \sum\limits_{j=1}^5 \frac{i^4}{(3+ij)}$
+```{r}
+i <-1:20
+j <- 1:5
+sum(i^4/(3+i*j))
+
+
+```
+
+
+
+(c) $\sum\limits_{i=1}^{10} \sum\limits_{j=1}^i \frac{i^4}{(3+ij)}$
+```{r}
+i <-1:10
+ij  <-  outer(i,i,"*") + 3
+ij[upper.tri(ij)] <- Inf #because it wont count in the sum of the next step
+sum(i^4/(ij))
+
+
+
+```
